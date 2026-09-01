@@ -1,4 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { App as AntApp } from "antd";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import App from "./App";
@@ -38,11 +40,17 @@ describe("admin navigation", () => {
 });
 
 function renderApp() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
   return render(
-    <MemoryRouter initialEntries={["/users"]}>
-      <App />
-      <RouteProbe />
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <AntApp>
+        <MemoryRouter initialEntries={["/users"]}>
+          <App />
+          <RouteProbe />
+        </MemoryRouter>
+      </AntApp>
+    </QueryClientProvider>
   );
 }
 

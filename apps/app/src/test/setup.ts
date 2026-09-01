@@ -15,6 +15,8 @@ Object.defineProperty(window, "matchMedia", {
   }))
 });
 
+window.getComputedStyle = () => ({ getPropertyValue: () => "" }) as unknown as CSSStyleDeclaration;
+
 globalThis.ResizeObserver = class ResizeObserver {
   observe() {
     return undefined;
