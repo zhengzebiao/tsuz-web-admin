@@ -174,6 +174,7 @@ Variables:
 | `DEPLOY_PATH`              | Remote directory containing runtime compose assets                           |
 | `DEPLOY_REPO_PATH`         | Separate absolute path for the server-side Git checkout                      |
 | `CONTAINER_NAME`           | Runtime container name                                                       |
+| `COMPOSE_PROJECT_NAME`     | Dedicated Compose project name for this app stack                            |
 | `APP_PORT`                 | Server port mapped to nginx port 80                                          |
 | `APP_ENV`                  | Environment label passed as `VITE_APP_ENV` at build time                     |
 | `VITE_API_BASE_URL`        | Build-time standalone API base URL                                           |
@@ -211,7 +212,7 @@ docker compose --env-file .env -f docker-compose.yml up -d --no-build app
 
 The deployment server must have Git, Docker, the Docker Compose plugin, network access to GitHub and `ccr.ccs.tencentyun.com`, and read-only access to this GitHub repository (for example, a repository deploy key). `DEPLOY_REPO_PATH` is kept separate from `DEPLOY_PATH`; the latter contains only the runtime Compose assets.
 
-The workflow validates that the server-side tag resolves to the same commit as the GitHub Actions run, and uses immutable version tags so a build cannot silently use stale source code. The CCR token is used only for registry login and is not written to the application `.env` file.
+The workflow validates that the server-side tag resolves to the same commit as the GitHub Actions run, and uses immutable version tags so a build cannot silently use stale source code. The CCR token is used only for registry login and is not written to the application `.env` file. The admin deployment also uses a dedicated Compose project name (`tsuz-web-admin-test` or `tsuz-web-admin-product`) and container name, so it cannot recreate or stop the main application's Compose stack.
 
 ### Rollback flow
 
@@ -238,6 +239,7 @@ Copy `.env.deploy.example` to `.env` before running compose in a deployment dire
 | `DOCKER_IMAGE_NAME` | Image repository/name used by `docker-compose.yml`                           |
 | `APP_VERSION`       | Image tag/version                                                            |
 | `CONTAINER_NAME`    | Container name                                                               |
+| `COMPOSE_PROJECT_NAME` | Dedicated Compose project name                                               |
 | `APP_PORT`          | Host port mapped to nginx port 80                                            |
 | `APP_ENV`           | Deployment environment; passed to the build as `VITE_APP_ENV`                |
 | `VITE_API_BASE_URL` | Build-time standalone API base URL                                           |

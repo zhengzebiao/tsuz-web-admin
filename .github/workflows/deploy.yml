@@ -330,6 +330,7 @@ jobs:
       DEPLOY_USER: ${{ vars.DEPLOY_USER }}
       DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
       CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
+      COMPOSE_PROJECT_NAME: tsuz-web-admin-${{ needs.resolve-deploy.outputs.environment }}
       APP_PORT: ${{ vars.APP_PORT }}
       APP_ENV: ${{ vars.APP_ENV }}
       VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
@@ -374,6 +375,7 @@ jobs:
           : "${DEPLOY_PATH:?Missing DEPLOY_PATH environment variable}"
           : "${SSH_PRIVATE_KEY:?Missing SSH_PRIVATE_KEY secret}"
           : "${CONTAINER_NAME:=tsuz-web-admin}"
+          : "${COMPOSE_PROJECT_NAME:=tsuz-web-admin}"
           if ! [[ "${DEPLOY_PORT:-22}" =~ ^[0-9]+$ ]] || [ "${DEPLOY_PORT:-22}" -lt 1 ] || [ "${DEPLOY_PORT:-22}" -gt 65535 ]; then
             echo "DEPLOY_PORT must be between 1 and 65535." >&2
             exit 1
@@ -384,6 +386,10 @@ jobs:
           fi
           if [[ ! "$CONTAINER_NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ ]]; then
             echo "Invalid CONTAINER_NAME: $CONTAINER_NAME" >&2
+            exit 1
+          fi
+          if [[ ! "$COMPOSE_PROJECT_NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ ]]; then
+            echo "Invalid COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME" >&2
             exit 1
           fi
           if [[ ! "${DOCKER_REGISTRY_USERNAME:-}" =~ ^[a-zA-Z0-9@._-]+$ ]]; then
@@ -410,6 +416,7 @@ jobs:
           DOCKER_IMAGE_NAME=$IMAGE_NAME
           APP_VERSION=$IMAGE_TAG
           CONTAINER_NAME=${CONTAINER_NAME:-tsuz-web-admin}
+          COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-tsuz-web-admin}
           APP_PORT=${APP_PORT:-7201}
           APP_ENV=${APP_ENV:-$DEPLOY_ENV}
           VITE_API_BASE_URL=${VITE_API_BASE_URL:-/api}
@@ -428,7 +435,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          compose="docker compose --env-file .env -f docker-compose.yml"
+          : "${COMPOSE_PROJECT_NAME:?Missing COMPOSE_PROJECT_NAME environment variable}"
+          compose="docker compose --project-name '$COMPOSE_PROJECT_NAME' --env-file .env -f docker-compose.yml"
           if [ "$SHOULD_BUILD" = "true" ]; then
             ssh -i ~/.ssh/deploy_key -p "${DEPLOY_PORT:-22}" "$DEPLOY_USER@$DEPLOY_HOST" \
               "docker image inspect '$IMAGE_NAME:$IMAGE_TAG' >/dev/null && cd '$DEPLOY_PATH' && $compose up -d --no-build app"
@@ -446,7 +454,8 @@ jobs:
         run: |
           set -euo pipefail
           container_name="${CONTAINER_NAME:-tsuz-web-admin}"
-          compose="docker compose --env-file .env -f docker-compose.yml"
+          : "${COMPOSE_PROJECT_NAME:?Missing COMPOSE_PROJECT_NAME environment variable}"
+          compose="docker compose --project-name '$COMPOSE_PROJECT_NAME' --env-file .env -f docker-compose.yml"
           for attempt in $(seq 1 30); do
             status="$(ssh -i ~/.ssh/deploy_key -p "${DEPLOY_PORT:-22}" "$DEPLOY_USER@$DEPLOY_HOST" \
               "docker inspect --format '{{.State.Status}}' '$container_name'" 2>/dev/null || true)"
