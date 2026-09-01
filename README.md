@@ -74,7 +74,7 @@ pnpm test
 pnpm build
 ```
 
-`pnpm test` runs lifecycle, API client, store, query, and Testing Library page coverage.
+`pnpm test` runs lifecycle, API client, store, and Testing Library coverage. The current admin user, role, and permission routes are placeholder list pages without API requests.
 
 ## Environment variable model
 
@@ -114,12 +114,13 @@ There are three environment layers:
 | `apps/app/src/main.tsx` | Standalone bootstrap and qiankun lifecycle exports |
 | `apps/app/src/bootstrap.tsx` | Shared render and destroy boundary with idempotent unmount behavior |
 | `apps/app/src/qiankun.ts` | bootstrap, mount, and unmount functions using shared props |
-| `apps/app/src/pages/BusinessHomePage.tsx` | Production-ready starter business page using host props, state, query data, CI, and deploy-ready checks |
-| `apps/app/src/pages/BusinessHomePage.test.tsx` | Testing Library coverage for standalone business page rendering |
+| `apps/app/src/App.tsx` | Admin console shell with user, role, and permission routes |
+| `apps/app/src/pages/AdminUsersPage.tsx` | Placeholder user management list page |
+| `apps/app/src/pages/AdminRolesPage.tsx` | Placeholder role management list page |
+| `apps/app/src/pages/AdminPermissionsPage.tsx` | Placeholder permission management list page |
 | `apps/app/src/providers/AppProviders.tsx` | React Query and Router providers with qiankun-aware basename support |
 | `apps/app/src/providers/query-client.ts` | Shared TanStack Query client defaults |
 | `apps/app/src/stores/app.store.ts` | Zustand runtime state for standalone and qiankun-mounted modes |
-| `apps/app/src/queries/business-home.query.ts` | Deterministic starter query for business summary data |
 | `apps/app/src/services/api-client.ts` | Sub-app API client factory using optional host props |
 | `Dockerfile` | Multi-stage production image build using nginx runtime |
 | `nginx/nginx.conf` | SPA fallback, cache, and qiankun CORS rules |
@@ -144,6 +145,8 @@ The app consumes these packages via `workspace:*` dependencies plus source alias
 When mounted by a host, `apps/app/src/qiankun.ts` accepts `Partial<MicroAppProps>` from `@tsuz/shared`. The generated lifecycle calls write those props into `apps/app/src/stores/app.store.ts`, and `createMfeApiClient` uses the same props to configure API base URL, access-token injection, and unauthorized handling without hard-coding host behavior.
 
 In production, the nginx config emits qiankun-safe CORS headers so host shells can load sub-app assets from another origin.
+
+The current admin navigation exposes these placeholder routes: `/admin/users`, `/admin/roles`, and `/admin/permissions`. The pages are intentionally empty until their authenticated list APIs are integrated.
 
 ## GitHub Actions CI
 

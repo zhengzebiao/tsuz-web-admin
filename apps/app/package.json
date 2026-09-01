@@ -11,6 +11,7 @@
     "preview": "vite preview --port 7201"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.6.1",
     "@tanstack/react-query": "^5.66.9",
     "@tsuz/api": "workspace:*",
     "@tsuz/shared": "workspace:*",
