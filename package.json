@@ -1,0 +1,25 @@
+{
+  "name": "tsuz-web-admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@8.15.9",
+  "scripts": {
+    "dev": "pnpm --filter tsuz-web-admin-app dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --ignore-unknown --write package.json pnpm-workspace.yaml .github/workflows/ci.yml .github/workflows/deploy.yml prettier.config.js",
+    "format:check": "prettier --ignore-unknown --check package.json pnpm-workspace.yaml .github/workflows/ci.yml .github/workflows/deploy.yml prettier.config.js",
+    "docker:build": "docker build -t tsuz-web-admin:${APP_VERSION:-local} .",
+    "docker:run": "docker run --rm -p 7201:80 tsuz-web-admin:${APP_VERSION:-local}",
+    "compose:up": "docker compose up --build",
+    "compose:down": "docker compose down"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.57",
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.3",
+    "typescript": "^5.8.3"
+  }
+}

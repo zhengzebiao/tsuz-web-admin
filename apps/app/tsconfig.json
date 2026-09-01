@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@tsuz/api": [
+        "../../packages/api/src/index.ts"
+      ],
+      "@tsuz/shared": [
+        "../../packages/shared/src/index.ts"
+      ],
+      "@tsuz/ui": [
+        "../../packages/ui/src/index.tsx"
+      ]
+    }
+  },
+  "include": [
+    "vite.config.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
+}

@@ -1,0 +1,13 @@
+node_modules
+dist
+apps/*/dist
+packages/*/dist
+.git
+.github
+.turbo
+coverage
+*.log
+*.local
+.env
+.env.*
+!.env.deploy.example

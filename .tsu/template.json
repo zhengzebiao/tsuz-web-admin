@@ -1,0 +1,9 @@
+{
+  "template": {
+    "name": "mfe-app",
+    "version": "1.0.0",
+    "source": "remote",
+    "repository": "zhengzebiao/tsu"
+  },
+  "generatedAt": "2026-08-21T09:20:26.271Z"
+}

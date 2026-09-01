@@ -1,0 +1,38 @@
+{
+  "name": "tsuz-web-admin-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 7201",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "preview": "vite preview --port 7201"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.66.9",
+    "@tsuz/api": "workspace:*",
+    "@tsuz/shared": "workspace:*",
+    "@tsuz/ui": "workspace:*",
+    "antd": "^5.24.4",
+    "qiankun": "^2.10.16",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.2.0",
+    "vite-plugin-qiankun": "^1.0.15",
+    "vitest": "^3.0.5"
+  }
+}
