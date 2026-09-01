@@ -127,7 +127,8 @@ const pageHeaderStyle: CSSProperties = {
 const pageTitleStyle: CSSProperties = {
   margin: 0,
   fontSize: 28,
-  lineHeight: 1.2
+  lineHeight: 1.2,
+  padding: '16px 0 0 16px'
 };
 
 const pageDescriptionStyle: CSSProperties = {

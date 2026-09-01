@@ -146,7 +146,7 @@ When mounted by a host, `apps/app/src/qiankun.ts` accepts `Partial<MicroAppProps
 
 In production, the nginx config emits qiankun-safe CORS headers so host shells can load sub-app assets from another origin.
 
-The current admin navigation exposes these placeholder routes: `/admin/users`, `/admin/roles`, and `/admin/permissions`. The pages are intentionally empty until their authenticated list APIs are integrated.
+The current admin navigation exposes these placeholder routes in a left sidebar: `/users`, `/roles`, and `/permissions`. The main host owns the page header; this sub application only provides the sidebar and content area. The pages are intentionally empty until their authenticated list APIs are integrated.
 
 ## GitHub Actions CI
 

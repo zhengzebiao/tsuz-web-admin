@@ -3,7 +3,7 @@
 :root {
   font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
   color: #172033;
-  background: #f6f8fb;
+  background: #fff;
 }
 
 body {
@@ -16,51 +16,54 @@ body {
 
 .app-shell {
   min-height: 100vh;
+  background: #fff;
 }
 
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.app-header .tsu-logo {
-  color: #fff;
-}
-
-.app-header .tsu-logo small {
-  color: #dbeafe !important;
+.app-sider {
+  min-height: 100vh;
+  overflow: auto;
+  border-right: 1px solid #e5e7eb;
+  background: #fff !important;
 }
 
 .app-menu {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border-bottom: 0;
+  min-height: 100%;
+  padding: 28px 16px;
+  border-inline-end: 0 !important;
+  background: #fff;
 }
 
 .app-menu .ant-menu-item {
-  color: #dbeafe;
+  height: 48px;
+  margin: 8px 0;
+  padding-inline: 26px !important;
+  border-radius: 0;
+  color: #6b7280;
+  font-size: 17px;
 }
 
-.app-menu .ant-menu-item:hover,
+.app-menu .ant-menu-item:hover {
+  color: #3565d4;
+  background: #f5f7fb;
+}
+
 .app-menu .ant-menu-item-selected {
-  color: #fff;
+  color: #3565d4;
+  background: #f0f4ff;
+  font-weight: 600;
 }
 
 .app-menu .ant-menu-item-selected::after {
-  border-bottom-color: #7dd3fc;
+  display: none;
 }
 
-.runtime-mode {
-  color: #fff;
+.app-menu .ant-menu-item-icon {
+  font-size: 18px;
 }
 
 .app-content {
-  padding: 32px;
-}
-
-.metric-card {
-  height: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  /* padding: 32px; */
+  background: #fff;
 }

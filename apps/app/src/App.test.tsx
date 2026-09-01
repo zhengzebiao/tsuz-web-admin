@@ -14,9 +14,9 @@ afterEach(() => {
 
 describe("admin navigation", () => {
   test.each([
-    ["用户管理", "/admin/users"],
-    ["角色管理", "/admin/roles"],
-    ["权限管理", "/admin/permissions"]
+    ["用户管理", "/users"],
+    ["角色管理", "/roles"],
+    ["权限管理", "/permissions"]
   ])("opens the %s list page", (label, path) => {
     renderApp();
 
@@ -30,6 +30,8 @@ describe("admin navigation", () => {
     renderApp();
 
     expect(screen.getAllByRole("menuitem").filter((item) => item.classList.contains("ant-menu-item"))).toHaveLength(3);
+    expect(screen.getByRole("menu")).toHaveClass("ant-menu-inline");
+    expect(document.querySelector(".app-header")).not.toBeInTheDocument();
     expect(screen.queryByText("Business home")).not.toBeInTheDocument();
     expect(screen.queryByText("About")).not.toBeInTheDocument();
   });
@@ -37,7 +39,7 @@ describe("admin navigation", () => {
 
 function renderApp() {
   return render(
-    <MemoryRouter initialEntries={["/admin/users"]}>
+    <MemoryRouter initialEntries={["/users"]}>
       <App />
       <RouteProbe />
     </MemoryRouter>
