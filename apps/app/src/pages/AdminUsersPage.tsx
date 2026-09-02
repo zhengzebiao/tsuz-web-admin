@@ -29,6 +29,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { PageContainer } from "@tsuz/ui";
 import { createMfeApiClient } from "../services/api-client";
+import UserRolesModal from "./admin-users/UserRolesModal";
 import {
   blacklistAdminUser,
   createAdminUser,
@@ -65,6 +66,7 @@ export default function AdminUsersPage() {
   const [draftFilters, setDraftFilters] = useState<Filters>({});
   const [page, setPage] = useState(1);
   const [modalState, setModalState] = useState<ModalState>();
+  const [rolesUser, setRolesUser] = useState<AdminUser>();
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [actionUser, setActionUser] = useState<AdminUser>();
   const [pendingAction, setPendingAction] = useState<"enable" | "recover" | "force-logout">();
@@ -202,6 +204,11 @@ export default function AdminUsersPage() {
                   icon: <EditOutlined />,
                   label: "编辑",
                   onClick: () => setModalState({ type: "edit", user })
+                },
+                {
+                  key: "roles",
+                  label: "分配角色",
+                  onClick: () => setRolesUser(user)
                 },
                 {
                   key: "reset-password",
@@ -358,6 +365,12 @@ export default function AdminUsersPage() {
           if (type === "reset-password" && user)
             await runAction(() => resetAdminUserPassword(apiClient, user.id, values.new_password), "密码已重置");
         }}
+      />
+      <UserRolesModal
+        client={apiClient}
+        user={rolesUser}
+        open={Boolean(rolesUser)}
+        onClose={() => setRolesUser(undefined)}
       />
       <ConfirmAction
         state={pendingAction === "force-logout" ? "force-logout" : undefined}

@@ -52,6 +52,33 @@ export interface AdminPasswordReset {
   new_password: string;
 }
 
+export interface AdminRoleSummary {
+  id: number;
+  name: string;
+  description: string;
+  is_enabled: boolean;
+}
+
+export interface AdminRoleListResponse {
+  items: AdminRoleSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface AdminUserRoleAssignment {
+  role_ids: number[];
+  version: number;
+}
+
+export interface AdminUserRolesResponse {
+  user_id: number;
+  roles: AdminRoleSummary[];
+  version: number;
+  changed: boolean;
+  revoked_sessions: number;
+}
+
 export interface AdminUserActionResponse extends AdminUser {
   changed: boolean;
   revoked_sessions?: number;
@@ -115,4 +142,18 @@ export function resetAdminUserPassword(client: ApiClient, userId: number, newPas
 
 export function forceLogoutAdminUser(client: ApiClient, userId: number) {
   return client.post<AdminForceLogoutResponse>(`/admin/users/${userId}/force-logout`);
+}
+
+export function listAssignableAdminRoles(client: ApiClient) {
+  return client.get<AdminRoleListResponse>("/admin/roles", {
+    query: { page: 1, page_size: 100, is_enabled: true }
+  });
+}
+
+export function getAdminUserRoles(client: ApiClient, userId: number) {
+  return client.get<AdminUserRolesResponse>(`/admin/users/${userId}/roles`);
+}
+
+export function replaceAdminUserRoles(client: ApiClient, userId: number, body: AdminUserRoleAssignment) {
+  return client.put<AdminUserRolesResponse>(`/admin/users/${userId}/roles`, body);
 }

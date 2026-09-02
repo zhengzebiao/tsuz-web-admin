@@ -8,18 +8,23 @@ import {
   listAdminUsers,
   recoverAdminUser,
   resetAdminUserPassword,
-  updateAdminUser
+  updateAdminUser,
+  getAdminUserRoles,
+  listAssignableAdminRoles,
+  replaceAdminUserRoles
 } from "./admin-users-api";
 
 function createClient() {
   return {
     get: vi.fn().mockResolvedValue(undefined),
     post: vi.fn().mockResolvedValue(undefined),
-    patch: vi.fn().mockResolvedValue(undefined)
+    patch: vi.fn().mockResolvedValue(undefined),
+    put: vi.fn().mockResolvedValue(undefined)
   } as unknown as ApiClient & {
     get: ReturnType<typeof vi.fn>;
     post: ReturnType<typeof vi.fn>;
     patch: ReturnType<typeof vi.fn>;
+    put: ReturnType<typeof vi.fn>;
   };
 }
 
@@ -56,5 +61,17 @@ describe("admin users API", () => {
     const client = createClient();
     await resetAdminUserPassword(client, 7, "new-password");
     expect(client.post).toHaveBeenCalledWith("/admin/users/7/reset-password", { new_password: "new-password" });
+  });
+
+  test("maps user role endpoints without a create-role request", async () => {
+    const client = createClient();
+    await listAssignableAdminRoles(client);
+    await getAdminUserRoles(client, 7);
+    await replaceAdminUserRoles(client, 7, { role_ids: [2, 3], version: 4 });
+    expect(client.get).toHaveBeenNthCalledWith(1, "/admin/roles", {
+      query: { page: 1, page_size: 100, is_enabled: true }
+    });
+    expect(client.get).toHaveBeenNthCalledWith(2, "/admin/users/7/roles");
+    expect(client.put).toHaveBeenCalledWith("/admin/users/7/roles", { role_ids: [2, 3], version: 4 });
   });
 });
