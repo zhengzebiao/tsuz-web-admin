@@ -66,10 +66,24 @@ afterEach(() => {
 
 describe("AdminPermissionsPage", () => {
   test("renders a paginated permission table and sends filters", async () => {
+    vi.mocked(listAdminPermissions).mockResolvedValue({
+      items: [permission],
+      total: 21,
+      page: 1,
+      page_size: 20
+    });
     renderPage();
     expect(await screen.findByText("users.read")).toBeInTheDocument();
-    expect(screen.getByText("共 1 条")).toBeInTheDocument();
+    expect(screen.getByText("共 21 条")).toBeInTheDocument();
+    expect(screen.getByRole("list")).toBeInTheDocument();
+    expect(screen.getByTitle("1")).toBeInTheDocument();
+    expect(screen.getByTitle("2")).toBeInTheDocument();
     expect(listAdminPermissions).toHaveBeenCalledWith(expect.anything(), { page: 1, page_size: 20 });
+
+    fireEvent.click(screen.getByTitle("2"));
+    await waitFor(() =>
+      expect(listAdminPermissions).toHaveBeenLastCalledWith(expect.anything(), { page: 2, page_size: 20 })
+    );
 
     fireEvent.change(screen.getByPlaceholderText("权限名称 / 显示名称"), { target: { value: "user" } });
     fireEvent.click(screen.getByRole("button", { name: /查\s*询/ }));

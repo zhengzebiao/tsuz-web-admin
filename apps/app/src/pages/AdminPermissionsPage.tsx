@@ -8,6 +8,7 @@ import {
   Form,
   Input,
   Modal,
+  Pagination,
   Select,
   Space,
   Spin,
@@ -16,7 +17,7 @@ import {
   Tag,
   Typography
 } from "antd";
-import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
+import type { ColumnsType } from "antd/es/table";
 import { EditOutlined, EyeOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
 import { PageContainer } from "@tsuz/ui";
@@ -161,7 +162,6 @@ export default function AdminPermissionsPage() {
   ];
 
   const rows = permissionsQuery.data?.items || [];
-  const handleTableChange = (pagination: TablePaginationConfig) => setPage(pagination.current || 1);
   const applyFilters = () => {
     setPage(1);
     setFilters(cleanFilters(draftFilters));
@@ -236,13 +236,16 @@ export default function AdminPermissionsPage() {
               "暂无权限"
             )
           }}
-          pagination={{
-            current: page,
-            pageSize: PAGE_SIZE,
-            total: permissionsQuery.data?.total || 0,
-            showSizeChanger: false,
-            showTotal: (total) => `共 ${total} 条`
-          }}
+          pagination={false}
+        />
+        <Pagination
+          current={page}
+          pageSize={PAGE_SIZE}
+          total={permissionsQuery.data?.total || 0}
+          showSizeChanger={false}
+          showTotal={(total) => `共 ${total} 条`}
+          onChange={(nextPage) => setPage(nextPage)}
+          style={{ marginTop: 16, textAlign: "right" }}
         />
       </Card>
       <PermissionModal
