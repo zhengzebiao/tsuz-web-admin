@@ -232,14 +232,15 @@ export default function AdminRolesPage() {
           loading={rolesQuery.isLoading}
           dataSource={rolesQuery.data?.items || []}
           columns={columns}
-          scroll={{ x: 1100 }}
+          scroll={{ x: 1100, y: 450 }}
           onChange={(pagination: TablePaginationConfig) => setPage(pagination.current || 1)}
           pagination={{
             current: page,
             pageSize: PAGE_SIZE,
             total: rolesQuery.data?.total || 0,
             showSizeChanger: false,
-            showTotal: (total) => `共 ${total} 条`
+            showTotal: (total) => `共 ${total} 条`,
+            className: "admin-roles-pagination"
           }}
           locale={{
             emptyText: rolesQuery.isError ? (

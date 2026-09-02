@@ -87,3 +87,9 @@ body {
 .admin-users-card .ant-table-wrapper {
   overflow-x: auto;
 }
+
+.admin-users-card .admin-permissions-pagination.ant-pagination,
+.admin-users-card .admin-users-pagination.ant-pagination,
+.admin-users-card .admin-roles-pagination.ant-pagination {
+  justify-content: center;
+}

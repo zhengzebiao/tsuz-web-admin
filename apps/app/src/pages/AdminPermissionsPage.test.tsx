@@ -75,7 +75,9 @@ describe("AdminPermissionsPage", () => {
     renderPage();
     expect(await screen.findByText("users.read")).toBeInTheDocument();
     expect(screen.getByText("共 21 条")).toBeInTheDocument();
+    expect(document.querySelector(".ant-table-body")).toHaveStyle({ maxHeight: "500px" });
     expect(screen.getByRole("list")).toBeInTheDocument();
+    expect(screen.getByRole("navigation")).toHaveClass("admin-permissions-pagination");
     expect(screen.getByTitle("1")).toBeInTheDocument();
     expect(screen.getByTitle("2")).toBeInTheDocument();
     expect(listAdminPermissions).toHaveBeenCalledWith(expect.anything(), { page: 1, page_size: 20 });

@@ -314,7 +314,7 @@ export default function AdminUsersPage() {
           loading={usersQuery.isLoading}
           dataSource={rows}
           columns={columns}
-          scroll={{ x: 1000 }}
+          scroll={{ x: 1000, y: 450 }}
           onChange={handleTableChange}
           locale={{
             emptyText: usersQuery.isError ? (
@@ -331,7 +331,8 @@ export default function AdminUsersPage() {
             pageSize: PAGE_SIZE,
             total: usersQuery.data?.total || 0,
             showSizeChanger: false,
-            showTotal: (total) => `共 ${total} 条`
+            showTotal: (total) => `共 ${total} 条`,
+            className: "admin-users-pagination"
           }}
         />
       </Card>
