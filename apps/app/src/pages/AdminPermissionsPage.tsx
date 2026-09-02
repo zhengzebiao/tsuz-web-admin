@@ -225,7 +225,6 @@ export default function AdminPermissionsPage() {
           dataSource={rows}
           columns={columns}
           scroll={{ x: 1200 }}
-          onChange={handleTableChange}
           locale={{
             emptyText: permissionsQuery.isError ? (
               <Space direction="vertical">
