@@ -1,6 +1,7 @@
-import { AppstoreOutlined, SafetyOutlined, TeamOutlined } from "@ant-design/icons";
+import { ApiOutlined, AppstoreOutlined, SafetyOutlined, TeamOutlined } from "@ant-design/icons";
 import { Layout, Menu, type MenuProps } from "antd";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import AdminAppsPage from "./pages/AdminAppsPage";
 import AdminPermissionsPage from "./pages/AdminPermissionsPage";
 import AdminRolesPage from "./pages/AdminRolesPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
@@ -22,13 +23,20 @@ const menuItems: MenuProps["items"] = [
     key: "/permissions",
     icon: <AppstoreOutlined />,
     label: "权限管理"
+  },
+  {
+    key: "/apps",
+    icon: <ApiOutlined />,
+    label: "应用管理"
   }
 ];
 
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
-  const selectedKey = menuItems?.find((item) => item && "key" in item && location.pathname.startsWith(String(item.key)))?.key;
+  const selectedKey = menuItems?.find(
+    (item) => item && "key" in item && location.pathname.startsWith(String(item.key))
+  )?.key;
 
   return (
     <Layout className="app-shell">
@@ -46,6 +54,7 @@ export default function App() {
           <Route path="/users" element={<AdminUsersPage />} />
           <Route path="/roles" element={<AdminRolesPage />} />
           <Route path="/permissions" element={<AdminPermissionsPage />} />
+          <Route path="/apps" element={<AdminAppsPage />} />
         </Routes>
       </Content>
     </Layout>

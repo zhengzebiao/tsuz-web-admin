@@ -74,7 +74,7 @@ pnpm test
 pnpm build
 ```
 
-`pnpm test` runs lifecycle, API client, store, and Testing Library coverage. The current admin user, role, and permission routes are placeholder list pages without API requests.
+`pnpm test` runs lifecycle, API client, store, domain API mapping, and Testing Library coverage for the implemented user, role, permission, and app management routes.
 
 ## Environment variable model
 
@@ -114,10 +114,11 @@ There are three environment layers:
 | `apps/app/src/main.tsx`                       | Standalone bootstrap and qiankun lifecycle exports                      |
 | `apps/app/src/bootstrap.tsx`                  | Shared render and destroy boundary with idempotent unmount behavior     |
 | `apps/app/src/qiankun.ts`                     | bootstrap, mount, and unmount functions using shared props              |
-| `apps/app/src/App.tsx`                        | Admin console shell with user, role, and permission routes              |
-| `apps/app/src/pages/AdminUsersPage.tsx`       | Placeholder user management list page                                   |
-| `apps/app/src/pages/AdminRolesPage.tsx`       | Placeholder role management list page                                   |
-| `apps/app/src/pages/AdminPermissionsPage.tsx` | Placeholder permission management list page                             |
+| `apps/app/src/App.tsx`                        | Admin console shell and management routes                               |
+| `apps/app/src/pages/AdminUsersPage.tsx`       | User management list and account actions                                |
+| `apps/app/src/pages/AdminRolesPage.tsx`       | Role, permission assignment, and associated-user management             |
+| `apps/app/src/pages/AdminPermissionsPage.tsx` | Permission metadata and status management                               |
+| `apps/app/src/pages/AdminAppsPage.tsx`        | Service app management and one-time initial Secret delivery             |
 | `apps/app/src/providers/AppProviders.tsx`     | React Query and Router providers with qiankun-aware basename support    |
 | `apps/app/src/providers/query-client.ts`      | Shared TanStack Query client defaults                                   |
 | `apps/app/src/stores/app.store.ts`            | Zustand runtime state for standalone and qiankun-mounted modes          |
@@ -146,7 +147,7 @@ When mounted by a host, `apps/app/src/qiankun.ts` accepts `Partial<MicroAppProps
 
 In production, the nginx config emits qiankun-safe CORS headers. The administrator image is built with `VITE_PUBLIC_BASE=/subapps/admin/`, so its entry HTML and assets can be exposed by the outer Nginx at `https://test.tusz.online/subapps/admin/`. The user-facing route remains `https://test.tusz.online/app/admin` and must continue to resolve through the host application.
 
-The current admin navigation exposes these placeholder routes in a left sidebar: `/users`, `/roles`, and `/permissions`. The main host owns the page header; this sub application only provides the sidebar and content area. The pages are intentionally empty until their authenticated list APIs are integrated.
+The current admin navigation exposes `/users`, `/roles`, `/permissions`, and `/apps` in a left sidebar. The main host owns the outer page header; this sub application provides the sidebar and management content area. Authenticated API calls reuse the host-provided base URL, token bridge, and logout callback when mounted through qiankun.
 
 ## GitHub Actions CI
 
@@ -234,16 +235,16 @@ Rollback skips checkout and Docker build. It logs in to CCR, pulls the selected 
 
 Copy `.env.deploy.example` to `.env` before running compose in a deployment directory.
 
-| Variable            | Purpose                                                                      |
-| ------------------- | ---------------------------------------------------------------------------- |
-| `DOCKER_IMAGE_NAME` | Image repository/name used by `docker-compose.yml`                           |
-| `APP_VERSION`       | Image tag/version                                                            |
-| `CONTAINER_NAME`    | Container name                                                               |
+| Variable               | Purpose                                                                      |
+| ---------------------- | ---------------------------------------------------------------------------- |
+| `DOCKER_IMAGE_NAME`    | Image repository/name used by `docker-compose.yml`                           |
+| `APP_VERSION`          | Image tag/version                                                            |
+| `CONTAINER_NAME`       | Container name                                                               |
 | `COMPOSE_PROJECT_NAME` | Dedicated Compose project name                                               |
-| `APP_PORT`          | Host port mapped to nginx port 80                                            |
-| `APP_ENV`           | Deployment environment; passed to the build as `VITE_APP_ENV`                |
-| `VITE_API_BASE_URL` | Build-time standalone API base URL                                           |
-| `VITE_PUBLIC_BASE`  | Build-time Vite asset base; use `/subapps/admin/` for the deployed admin app |
+| `APP_PORT`             | Host port mapped to nginx port 80                                            |
+| `APP_ENV`              | Deployment environment; passed to the build as `VITE_APP_ENV`                |
+| `VITE_API_BASE_URL`    | Build-time standalone API base URL                                           |
+| `VITE_PUBLIC_BASE`     | Build-time Vite asset base; use `/subapps/admin/` for the deployed admin app |
 
 ```bash
 pnpm docker:build
