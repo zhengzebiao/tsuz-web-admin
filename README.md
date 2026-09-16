@@ -74,7 +74,7 @@ pnpm test
 pnpm build
 ```
 
-`pnpm test` runs lifecycle, API client, store, domain API mapping, and Testing Library coverage for the implemented user, role, permission, and app management routes.
+`pnpm test` runs lifecycle, API client, store, domain API mapping, and Testing Library coverage for the implemented user, role, permission, app, and resource scope management routes.
 
 ## Environment variable model
 
@@ -109,29 +109,30 @@ There are three environment layers:
 
 ## Project Structure
 
-| Path                                          | Purpose                                                                 |
-| --------------------------------------------- | ----------------------------------------------------------------------- |
-| `apps/app/src/main.tsx`                       | Standalone bootstrap and qiankun lifecycle exports                      |
-| `apps/app/src/bootstrap.tsx`                  | Shared render and destroy boundary with idempotent unmount behavior     |
-| `apps/app/src/qiankun.ts`                     | bootstrap, mount, and unmount functions using shared props              |
-| `apps/app/src/App.tsx`                        | Admin console shell and management routes                               |
-| `apps/app/src/pages/AdminUsersPage.tsx`       | User management list and account actions                                |
-| `apps/app/src/pages/AdminRolesPage.tsx`       | Role, permission assignment, and associated-user management             |
-| `apps/app/src/pages/AdminPermissionsPage.tsx` | Permission metadata and status management                               |
-| `apps/app/src/pages/AdminAppsPage.tsx`        | Service app management and one-time initial Secret delivery             |
-| `apps/app/src/providers/AppProviders.tsx`     | React Query and Router providers with qiankun-aware basename support    |
-| `apps/app/src/providers/query-client.ts`      | Shared TanStack Query client defaults                                   |
-| `apps/app/src/stores/app.store.ts`            | Zustand runtime state for standalone and qiankun-mounted modes          |
-| `apps/app/src/services/api-client.ts`         | Sub-app API client factory using optional host props                    |
-| `Dockerfile`                                  | Multi-stage production image build using nginx runtime                  |
-| `nginx/nginx.conf`                            | SPA fallback, cache, and qiankun CORS rules                             |
-| `docker-compose.yml`                          | Single-service compose orchestration for this sub app                   |
-| `.env.deploy.example`                         | Deployment variables consumed by docker compose                         |
-| `.github/workflows/ci.yml`                    | PR and main/master push quality gate for lint, format, test, and build  |
-| `.github/workflows/deploy.yml`                | Tag release and rollback workflow for Docker image deployment           |
-| `packages/shared/src/index.ts`                | Shared auth, micro-app, route, and utility contracts                    |
-| `packages/ui/src/index.tsx`                   | Shared React UI primitives: Logo, PageContainer, EmptyState, ErrorState |
-| `packages/api/src/index.ts`                   | Generic fetch-based API client                                          |
+| Path                                             | Purpose                                                                 |
+| ------------------------------------------------ | ----------------------------------------------------------------------- |
+| `apps/app/src/main.tsx`                          | Standalone bootstrap and qiankun lifecycle exports                      |
+| `apps/app/src/bootstrap.tsx`                     | Shared render and destroy boundary with idempotent unmount behavior     |
+| `apps/app/src/qiankun.ts`                        | bootstrap, mount, and unmount functions using shared props              |
+| `apps/app/src/App.tsx`                           | Admin console shell and management routes                               |
+| `apps/app/src/pages/AdminUsersPage.tsx`          | User management list and account actions                                |
+| `apps/app/src/pages/AdminRolesPage.tsx`          | Role, permission assignment, and associated-user management             |
+| `apps/app/src/pages/AdminPermissionsPage.tsx`    | Permission metadata and status management                               |
+| `apps/app/src/pages/AdminAppsPage.tsx`           | Service app management and one-time initial Secret delivery             |
+| `apps/app/src/pages/AdminResourceScopesPage.tsx` | Resource Scope management with App selection and status actions         |
+| `apps/app/src/providers/AppProviders.tsx`        | React Query and Router providers with qiankun-aware basename support    |
+| `apps/app/src/providers/query-client.ts`         | Shared TanStack Query client defaults                                   |
+| `apps/app/src/stores/app.store.ts`               | Zustand runtime state for standalone and qiankun-mounted modes          |
+| `apps/app/src/services/api-client.ts`            | Sub-app API client factory using optional host props                    |
+| `Dockerfile`                                     | Multi-stage production image build using nginx runtime                  |
+| `nginx/nginx.conf`                               | SPA fallback, cache, and qiankun CORS rules                             |
+| `docker-compose.yml`                             | Single-service compose orchestration for this sub app                   |
+| `.env.deploy.example`                            | Deployment variables consumed by docker compose                         |
+| `.github/workflows/ci.yml`                       | PR and main/master push quality gate for lint, format, test, and build  |
+| `.github/workflows/deploy.yml`                   | Tag release and rollback workflow for Docker image deployment           |
+| `packages/shared/src/index.ts`                   | Shared auth, micro-app, route, and utility contracts                    |
+| `packages/ui/src/index.tsx`                      | Shared React UI primitives: Logo, PageContainer, EmptyState, ErrorState |
+| `packages/api/src/index.ts`                      | Generic fetch-based API client                                          |
 
 ## Shared Workspace Packages
 
@@ -147,7 +148,7 @@ When mounted by a host, `apps/app/src/qiankun.ts` accepts `Partial<MicroAppProps
 
 In production, the nginx config emits qiankun-safe CORS headers. The administrator image is built with `VITE_PUBLIC_BASE=/subapps/admin/`, so its entry HTML and assets can be exposed by the outer Nginx at `https://test.tusz.online/subapps/admin/`. The user-facing route remains `https://test.tusz.online/app/admin` and must continue to resolve through the host application.
 
-The current admin navigation exposes `/users`, `/roles`, `/permissions`, and `/apps` in a left sidebar. The main host owns the outer page header; this sub application provides the sidebar and management content area. Authenticated API calls reuse the host-provided base URL, token bridge, and logout callback when mounted through qiankun.
+The current admin navigation exposes `/users`, `/roles`, `/permissions`, `/apps`, and `/resource-scopes` in a left sidebar. The main host owns the outer page header; this sub application provides the sidebar and management content area. Authenticated API calls reuse the host-provided base URL, token bridge, and logout callback when mounted through qiankun.
 
 ## GitHub Actions CI
 

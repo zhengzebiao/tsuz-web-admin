@@ -1,12 +1,14 @@
 # 管理端服务访问管理实施方案
 
-> 状态：实施中；第一阶段 `admin-apps` 代码与本地质量门禁已完成，真实环境联调待执行
+> 状态：实施中；第一、二阶段代码与本地质量门禁已完成，真实环境联调待执行
 >
 > 本方案基于当前 React + TypeScript + Ant Design + TanStack Query + qiankun 管理子应用，以及 2026-09-16 读取的本地测试 API OpenAPI 契约。
 >
 > 接口基准：[本地 Swagger UI](http://127.0.0.1:8000/docs) / [本地 OpenAPI JSON](http://127.0.0.1:8000/openapi.json)
 >
 > 第一阶段：[实现计划](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_1_PLAN.md) / [执行记录](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_1_EXECUTION.md)
+>
+> 第二阶段：[实现计划](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_2_PLAN.md) / [执行记录](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_2_EXECUTION.md)
 
 ## 1. 已确认业务配置与关键决策
 
@@ -25,7 +27,7 @@
 
 ### 2.1 背景
 
-管理端需要维护可调用服务的应用、目标服务暴露的 Scope，以及应用到 Scope 的授权关系。第一阶段实施前管理子应用只有用户、角色和权限管理；当前 Apps 管理入口已落地，Scopes 和 Grants 仍待后续阶段接入。
+管理端需要维护可调用服务的应用、目标服务暴露的 Scope，以及应用到 Scope 的授权关系。第一阶段实施前管理子应用只有用户、角色和权限管理；当前 Apps 和 Resource Scopes 管理入口已落地，Service Grants 仍待第三阶段接入。
 
 ### 2.2 当前架构
 
@@ -36,16 +38,18 @@
 - [`apps/app/src/pages/AdminRolesPage.tsx`](../apps/app/src/pages/AdminRolesPage.tsx)：提供创建、详情、编辑和状态操作模式；
 - [`apps/app/src/pages/AdminPermissionsPage.tsx`](../apps/app/src/pages/AdminPermissionsPage.tsx)：提供筛选分页、详情查询和失败重试模式；
 - [`apps/app/src/pages/AdminAppsPage.tsx`](../apps/app/src/pages/AdminAppsPage.tsx)：第一阶段已新增 Apps 列表、创建、详情、编辑、启停和初始 Secret 一次性展示；
-- [`apps/app/src/services/admin-apps-api.ts`](../apps/app/src/services/admin-apps-api.ts)：第一阶段已新增 Apps 领域类型和请求函数，可供第二阶段选项查询复用；
+- [`apps/app/src/services/admin-apps-api.ts`](../apps/app/src/services/admin-apps-api.ts)：第一阶段已新增 Apps 领域类型和请求函数，第二阶段复用于 Apps 远程候选；
+- [`apps/app/src/pages/AdminResourceScopesPage.tsx`](../apps/app/src/pages/AdminResourceScopesPage.tsx)：第二阶段已新增 Scope 列表、筛选、创建、启停和候选上限/失败反馈；
+- [`apps/app/src/services/admin-resource-scopes-api.ts`](../apps/app/src/services/admin-resource-scopes-api.ts)：第二阶段已新增 Scopes 领域类型和请求函数，可供第三阶段按目标 App 加载启用 Scope；
 - [`packages/api/src/index.ts`](../packages/api/src/index.ts)：提供通用 GET/POST/PATCH/PUT/DELETE 封装；
 - [`packages/ui/src/index.tsx`](../packages/ui/src/index.tsx)：提供 `PageContainer`。
 
 ### 2.3 现状差距
 
 1. Apps 的领域 API、页面、路由、导航和初始 Secret 一次性交付已在第一阶段落地，本地质量门禁通过；
-2. Resource Scopes 和 Service Grants 的领域 API、页面、路由及测试仍未实现；
-3. 后两类操作应复用 Apps 的字符串业务 `app_id`，Grant 还依赖 Scope 的数字 `id`；
-4. 本地 API 未允许管理端开发源跨域，第一阶段真实列表读取和写操作尚未联调；
+2. Resource Scopes 的领域 API、页面、路由、Apps 约束选择及测试已在第二阶段落地，本地质量门禁通过；
+3. Service Grants 的领域 API、页面、路由及测试仍未实现，后续应复用 Apps 的字符串业务 `app_id` 和 Scope 的数字 `id`；
+4. 第一阶段真实 API 直连受 CORS 阻止；第二阶段 standalone `/api` 未返回有效领域 Schema，两个阶段的真实读写联调均未完成；
 5. Scope 列表最多返回 100 条且不支持按 `scope_code` 搜索，Grant 创建选项可能不完整。
 
 ## 3. 目标与非目标
@@ -210,11 +214,17 @@ createMfeApiClient
 - 校准 `AdminPermissionsPage.test.tsx` 的既有分页断言，并更新 README 中已过时的页面/路由说明；
 - 新增第一阶段计划和执行记录。
 
+### 第二阶段
+
+- 新增 `apps/app/src/services/admin-resource-scopes-api.ts` 及测试；
+- 新增 `apps/app/src/pages/AdminResourceScopesPage.tsx` 及测试；
+- 修改 `apps/app/src/App.tsx`、`App.test.tsx` 和最小必要样式；
+- 更新 README，并新增第二阶段计划和执行记录。
+
 ### 后续阶段
 
-- 第二阶段计划新增 Resource Scopes Service、页面和测试；
 - 第三阶段计划新增 Service Grants Service、页面和测试；
-- 每一阶段开始前依据当时 OpenAPI 和代码重新核对具体文件范围。
+- 阶段开始前依据当时 OpenAPI 和代码重新核对具体文件范围。
 
 ## 11. 异常处理与可观测性
 
@@ -266,10 +276,10 @@ createMfeApiClient
 
 - [ ] standalone 与 qiankun API 基地址、Token 注入已验证；
 - [x] 无新增配置、依赖和数据库迁移；
-- [ ] 各阶段定向和全量质量门禁通过；第一阶段已通过，后续阶段待实施；
+- [ ] 各阶段定向和全量质量门禁通过；第一、二阶段已通过，第三阶段待实施；
 - [ ] 受控环境权限和写操作验证已授权并记录；
 - [x] 第一阶段初始 Secret 未写入日志、缓存、Storage 和构建产物；
-- [x] 第一阶段旧三模块导航与测试回归通过；完整回滚仍待发布环境验证。
+- [x] 第一、二阶段旧管理模块导航与测试回归通过；完整回滚仍待发布环境验证。
 
 应用代码可通过回滚镜像/提交恢复；服务端已发生的创建、禁用和撤销操作必须依据后端能力人工恢复，不能由前端回滚代替。
 
@@ -295,15 +305,21 @@ createMfeApiClient
 
 ### 第二阶段：资源范围管理
 
-> 状态：未开始；阶段计划与执行记录待创建
+> 状态：部分完成；代码、本地质量门禁和浏览器无副作用检查已完成，真实 API 读写联调待执行
+>
+> 阶段计划：[ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_2_PLAN.md](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_2_PLAN.md)
+>
+> 执行记录：[ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_2_EXECUTION.md](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_2_EXECUTION.md)
 
-前置依赖：第一阶段 Apps 查询能力已落地；重新核对 OpenAPI。
+前置依赖：第一阶段 Apps 查询能力已落地；2026-09-16 已重新核对 OpenAPI，契约与总方案一致。
 
-开发内容：Scope 列表、Apps 下拉筛选/创建、手填 `scope_code`、启用/禁用和测试文档。
+开发内容：Scope 列表、Apps 下拉筛选/创建、手填 `scope_code`、启用/禁用和测试文档均已落地。
 
-本阶段不实现：Grant、Scope 编辑/删除、状态级联。
+本阶段不实现：Grant、Scope 详情/编辑/删除、状态级联。
 
-阶段验收：`target_app_id` 提交业务 App ID；创建字段和状态操作正确；选项不完整时有明确提示。
+阶段验收：字符串业务 `target_app_id`、数字 Scope `id`、创建字段、无 body 状态操作、`changed` 反馈、候选上限/失败提示及本地质量门禁均已通过；浏览器路由和表单通过，真实 API 领域读取和写操作待受控环境验证。
+
+下一阶段入口：Apps 和 Scopes Service 已可供 Service Grants 组合查询；第三阶段开始前需重新读取 OpenAPI，并设计 target App 到启用 Scope 的联动及 100 条上限提示。
 
 ### 第三阶段：服务授权管理
 
@@ -332,7 +348,7 @@ createMfeApiClient
 
 ### 16.2 待确认项
 
-当前没有阻塞第一阶段实施的待确认项。Scope 超过 100 条时是否增加后端搜索接口，留待第二阶段依据真实数据量确认。
+当前没有阻塞第三阶段方案准备的待确认项。Scope 超过 100 条且无法按 `scope_code` 搜索时是否增加后端搜索接口，仍需依据真实数据量评估；第三阶段必须在现有上限下明确提示候选可能不完整。
 
 ### 16.3 方案决策记录
 
