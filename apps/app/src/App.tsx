@@ -1,10 +1,18 @@
-import { ApiOutlined, AppstoreOutlined, KeyOutlined, SafetyOutlined, TeamOutlined } from "@ant-design/icons";
+import {
+  ApiOutlined,
+  AppstoreOutlined,
+  KeyOutlined,
+  SafetyCertificateOutlined,
+  SafetyOutlined,
+  TeamOutlined
+} from "@ant-design/icons";
 import { Layout, Menu, type MenuProps } from "antd";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import AdminAppsPage from "./pages/AdminAppsPage";
 import AdminPermissionsPage from "./pages/AdminPermissionsPage";
 import AdminResourceScopesPage from "./pages/AdminResourceScopesPage";
 import AdminRolesPage from "./pages/AdminRolesPage";
+import AdminServiceGrantsPage from "./pages/AdminServiceGrantsPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
 
 const { Content, Sider } = Layout;
@@ -34,6 +42,11 @@ const menuItems: MenuProps["items"] = [
     key: "/resource-scopes",
     icon: <KeyOutlined />,
     label: "资源范围管理"
+  },
+  {
+    key: "/service-grants",
+    icon: <SafetyCertificateOutlined />,
+    label: "服务授权管理"
   }
 ];
 
@@ -62,6 +75,7 @@ export default function App() {
           <Route path="/permissions" element={<AdminPermissionsPage />} />
           <Route path="/apps" element={<AdminAppsPage />} />
           <Route path="/resource-scopes" element={<AdminResourceScopesPage />} />
+          <Route path="/service-grants" element={<AdminServiceGrantsPage />} />
         </Routes>
       </Content>
     </Layout>

@@ -74,7 +74,7 @@ pnpm test
 pnpm build
 ```
 
-`pnpm test` runs lifecycle, API client, store, domain API mapping, and Testing Library coverage for the implemented user, role, permission, app, and resource scope management routes.
+`pnpm test` runs lifecycle, API client, store, domain API mapping, and Testing Library coverage for the implemented user, role, permission, app, resource scope, and service grant management routes.
 
 ## Environment variable model
 
@@ -120,6 +120,7 @@ There are three environment layers:
 | `apps/app/src/pages/AdminPermissionsPage.tsx`    | Permission metadata and status management                               |
 | `apps/app/src/pages/AdminAppsPage.tsx`           | Service app management and one-time initial Secret delivery             |
 | `apps/app/src/pages/AdminResourceScopesPage.tsx` | Resource Scope management with App selection and status actions         |
+| `apps/app/src/pages/AdminServiceGrantsPage.tsx`  | Service Grant management with App/Scope selection and revocation        |
 | `apps/app/src/providers/AppProviders.tsx`        | React Query and Router providers with qiankun-aware basename support    |
 | `apps/app/src/providers/query-client.ts`         | Shared TanStack Query client defaults                                   |
 | `apps/app/src/stores/app.store.ts`               | Zustand runtime state for standalone and qiankun-mounted modes          |
@@ -148,7 +149,7 @@ When mounted by a host, `apps/app/src/qiankun.ts` accepts `Partial<MicroAppProps
 
 In production, the nginx config emits qiankun-safe CORS headers. The administrator image is built with `VITE_PUBLIC_BASE=/subapps/admin/`, so its entry HTML and assets can be exposed by the outer Nginx at `https://test.tusz.online/subapps/admin/`. The user-facing route remains `https://test.tusz.online/app/admin` and must continue to resolve through the host application.
 
-The current admin navigation exposes `/users`, `/roles`, `/permissions`, `/apps`, and `/resource-scopes` in a left sidebar. The main host owns the outer page header; this sub application provides the sidebar and management content area. Authenticated API calls reuse the host-provided base URL, token bridge, and logout callback when mounted through qiankun.
+The current admin navigation exposes `/users`, `/roles`, `/permissions`, `/apps`, `/resource-scopes`, and `/service-grants` in a left sidebar. The main host owns the outer page header; this sub application provides the sidebar and management content area. Authenticated API calls reuse the host-provided base URL, token bridge, and logout callback when mounted through qiankun.
 
 ## GitHub Actions CI
 

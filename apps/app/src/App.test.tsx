@@ -20,7 +20,8 @@ describe("admin navigation", () => {
     ["角色管理", "/roles"],
     ["权限管理", "/permissions"],
     ["应用管理", "/apps"],
-    ["资源范围管理", "/resource-scopes"]
+    ["资源范围管理", "/resource-scopes"],
+    ["服务授权管理", "/service-grants"]
   ])("opens the %s list page", (label, path) => {
     renderApp();
 
@@ -30,10 +31,10 @@ describe("admin navigation", () => {
     expect(screen.getByRole("heading", { name: label })).toBeInTheDocument();
   });
 
-  test("renders only the five implemented admin navigation entries", () => {
+  test("renders only the six implemented admin navigation entries", () => {
     renderApp();
 
-    expect(screen.getAllByRole("menuitem").filter((item) => item.classList.contains("ant-menu-item"))).toHaveLength(5);
+    expect(screen.getAllByRole("menuitem").filter((item) => item.classList.contains("ant-menu-item"))).toHaveLength(6);
     expect(screen.getByRole("menu")).toHaveClass("ant-menu-inline");
     expect(document.querySelector(".app-header")).not.toBeInTheDocument();
     expect(screen.queryByText("Business home")).not.toBeInTheDocument();

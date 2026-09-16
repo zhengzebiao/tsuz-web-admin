@@ -1,14 +1,16 @@
 # 管理端服务访问管理实施方案
 
-> 状态：实施中；第一、二阶段代码与本地质量门禁已完成，真实环境联调待执行
+> 状态：实施中；三个阶段代码与本地质量门禁已完成，真实环境联调待执行
 >
-> 本方案基于当前 React + TypeScript + Ant Design + TanStack Query + qiankun 管理子应用，以及 2026-09-16 读取的本地测试 API OpenAPI 契约。
+> 本方案基于当前 React + TypeScript + Ant Design + TanStack Query + qiankun 管理子应用，以及 2026-09-16 核对的测试 API OpenAPI 契约。
 >
 > 接口基准：[本地 Swagger UI](http://127.0.0.1:8000/docs) / [本地 OpenAPI JSON](http://127.0.0.1:8000/openapi.json)
 >
 > 第一阶段：[实现计划](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_1_PLAN.md) / [执行记录](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_1_EXECUTION.md)
 >
 > 第二阶段：[实现计划](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_2_PLAN.md) / [执行记录](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_2_EXECUTION.md)
+>
+> 第三阶段：[实现计划](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_3_PLAN.md) / [执行记录](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_3_EXECUTION.md)
 
 ## 1. 已确认业务配置与关键决策
 
@@ -27,7 +29,7 @@
 
 ### 2.1 背景
 
-管理端需要维护可调用服务的应用、目标服务暴露的 Scope，以及应用到 Scope 的授权关系。第一阶段实施前管理子应用只有用户、角色和权限管理；当前 Apps 和 Resource Scopes 管理入口已落地，Service Grants 仍待第三阶段接入。
+管理端需要维护可调用服务的应用、目标服务暴露的 Scope，以及应用到 Scope 的授权关系。第一阶段实施前管理子应用只有用户、角色和权限管理；当前 Apps、Resource Scopes 和 Service Grants 三个管理入口均已落地，本地验证已完成，真实环境联调仍待执行。
 
 ### 2.2 当前架构
 
@@ -40,7 +42,9 @@
 - [`apps/app/src/pages/AdminAppsPage.tsx`](../apps/app/src/pages/AdminAppsPage.tsx)：第一阶段已新增 Apps 列表、创建、详情、编辑、启停和初始 Secret 一次性展示；
 - [`apps/app/src/services/admin-apps-api.ts`](../apps/app/src/services/admin-apps-api.ts)：第一阶段已新增 Apps 领域类型和请求函数，第二阶段复用于 Apps 远程候选；
 - [`apps/app/src/pages/AdminResourceScopesPage.tsx`](../apps/app/src/pages/AdminResourceScopesPage.tsx)：第二阶段已新增 Scope 列表、筛选、创建、启停和候选上限/失败反馈；
-- [`apps/app/src/services/admin-resource-scopes-api.ts`](../apps/app/src/services/admin-resource-scopes-api.ts)：第二阶段已新增 Scopes 领域类型和请求函数，可供第三阶段按目标 App 加载启用 Scope；
+- [`apps/app/src/services/admin-resource-scopes-api.ts`](../apps/app/src/services/admin-resource-scopes-api.ts)：第二阶段已新增 Scopes 领域类型和请求函数，第三阶段复用于按目标 App 加载启用 Scope；
+- [`apps/app/src/pages/AdminServiceGrantsPage.tsx`](../apps/app/src/pages/AdminServiceGrantsPage.tsx)：第三阶段已新增 Grant 列表、筛选、caller/target/Scope 联动创建、有效期和撤销；
+- [`apps/app/src/services/admin-service-grants-api.ts`](../apps/app/src/services/admin-service-grants-api.ts)：第三阶段已新增 Grants 领域类型和列表、创建、撤销请求函数；
 - [`packages/api/src/index.ts`](../packages/api/src/index.ts)：提供通用 GET/POST/PATCH/PUT/DELETE 封装；
 - [`packages/ui/src/index.tsx`](../packages/ui/src/index.tsx)：提供 `PageContainer`。
 
@@ -48,9 +52,9 @@
 
 1. Apps 的领域 API、页面、路由、导航和初始 Secret 一次性交付已在第一阶段落地，本地质量门禁通过；
 2. Resource Scopes 的领域 API、页面、路由、Apps 约束选择及测试已在第二阶段落地，本地质量门禁通过；
-3. Service Grants 的领域 API、页面、路由及测试仍未实现，后续应复用 Apps 的字符串业务 `app_id` 和 Scope 的数字 `id`；
-4. 第一阶段真实 API 直连受 CORS 阻止；第二阶段 standalone `/api` 未返回有效领域 Schema，两个阶段的真实读写联调均未完成；
-5. Scope 列表最多返回 100 条且不支持按 `scope_code` 搜索，Grant 创建选项可能不完整。
+3. Service Grants 的领域 API、页面、路由、联动创建、有效期、撤销和测试已在第三阶段落地，本地质量门禁通过；
+4. 第一阶段真实 API 直连受 CORS 阻止；第二、三阶段 standalone `/api` 返回的是 Vite HTML 而非领域 Schema，三个阶段的真实读写联调均未完成；
+5. Scope 列表最多返回 100 条且不支持按 `scope_code` 搜索，Grant 创建选项可能不完整；页面已明确提示且不允许自由文本绕过。
 
 ## 3. 目标与非目标
 
@@ -106,7 +110,7 @@
 - `version` 冲突：Apps 编辑以服务端拒绝为准，提示后重新加载最新数据；
 - 重复状态操作：根据响应 `changed` 区分实际变更与幂等无变化；
 - Apps/Scopes 选择超过 API 的 100 条上限：明确提示可能不完整，不宣称全量；
-- 日期：Grant 创建提交 ISO 8601，前端校验到期时间晚于生效时间，最终规则以后端为准；
+- 日期：Grant 创建把本地选择时间转换为 UTC 无时区 ISO datetime；前端校验到期时间晚于生效时间（生效时间为空时晚于当前时间），最终规则以后端为准；
 - 401/403：401 复用宿主 logout；403 作为授权失败展示，不绕过后端权限；
 - 创建 App 成功但列表刷新失败：仍先交付一次性 Secret，再允许列表重试。
 
@@ -221,10 +225,12 @@ createMfeApiClient
 - 修改 `apps/app/src/App.tsx`、`App.test.tsx` 和最小必要样式；
 - 更新 README，并新增第二阶段计划和执行记录。
 
-### 后续阶段
+### 第三阶段
 
-- 第三阶段计划新增 Service Grants Service、页面和测试；
-- 阶段开始前依据当时 OpenAPI 和代码重新核对具体文件范围。
+- 新增 `apps/app/src/services/admin-service-grants-api.ts` 及测试；
+- 新增 `apps/app/src/pages/AdminServiceGrantsPage.tsx` 及测试；
+- 修改 `apps/app/src/App.tsx`、`App.test.tsx` 和最小必要样式；
+- 更新 README，并新增第三阶段计划和执行记录。
 
 ## 11. 异常处理与可观测性
 
@@ -276,10 +282,10 @@ createMfeApiClient
 
 - [ ] standalone 与 qiankun API 基地址、Token 注入已验证；
 - [x] 无新增配置、依赖和数据库迁移；
-- [ ] 各阶段定向和全量质量门禁通过；第一、二阶段已通过，第三阶段待实施；
+- [x] 三个阶段定向和全量质量门禁通过；第三阶段全量测试曾出现一次既有异步清理偶发错误，独立及全仓重跑均通过；
 - [ ] 受控环境权限和写操作验证已授权并记录；
 - [x] 第一阶段初始 Secret 未写入日志、缓存、Storage 和构建产物；
-- [x] 第一、二阶段旧管理模块导航与测试回归通过；完整回滚仍待发布环境验证。
+- [x] 三个阶段旧管理模块导航与测试回归通过；完整回滚仍待发布环境验证。
 
 应用代码可通过回滚镜像/提交恢复；服务端已发生的创建、禁用和撤销操作必须依据后端能力人工恢复，不能由前端回滚代替。
 
@@ -319,19 +325,23 @@ createMfeApiClient
 
 阶段验收：字符串业务 `target_app_id`、数字 Scope `id`、创建字段、无 body 状态操作、`changed` 反馈、候选上限/失败提示及本地质量门禁均已通过；浏览器路由和表单通过，真实 API 领域读取和写操作待受控环境验证。
 
-下一阶段入口：Apps 和 Scopes Service 已可供 Service Grants 组合查询；第三阶段开始前需重新读取 OpenAPI，并设计 target App 到启用 Scope 的联动及 100 条上限提示。
+下一阶段入口：Apps 和 Scopes Service 已在第三阶段复用于 Service Grants 组合查询；target App 到启用 Scope 的联动及 100 条上限提示已落地，真实环境验证仍按第二、三阶段执行记录追踪。
 
 ### 第三阶段：服务授权管理
 
-> 状态：未开始；阶段计划与执行记录待创建
+> 状态：部分完成；代码、本地质量门禁和浏览器无副作用检查已完成，真实 API 读写联调待执行
+>
+> 阶段计划：[ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_3_PLAN.md](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_3_PLAN.md)
+>
+> 执行记录：[ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_3_EXECUTION.md](./ADMIN_SERVICE_ACCESS_IMPLEMENTATION_PHASE_3_EXECUTION.md)
 
-前置依赖：Apps 和 Scopes 查询能力已落地；重新核对 OpenAPI。
+前置依赖：Apps 和 Scopes 查询能力已落地；2026-09-16 已从相邻后端仓库当前代码生成 OpenAPI 并核对路由、Schema、Service 和 API 测试，契约自引入提交以来未漂移。
 
-开发内容：Grant 列表、caller/target/Scope 联动选择、有效期、创建、撤销和测试文档。
+开发内容：Grant 列表、caller/target/Scope 联动选择、候选上限/失败反馈、有效期与 UTC 无时区转换、创建、撤销、路由导航和测试文档均已落地。
 
-本阶段不实现：Grant 编辑、删除、恢复、批量授权或 Secret 管理。
+本阶段不实现：Grant 编辑、删除、恢复、批量授权、Scope 搜索/分页增强或 Secret 管理。
 
-阶段验收：创建只提交 `caller_app_id`、`scope_id` 和有效期；撤销请求体正确；已撤销项只读；前端不改写服务端状态。
+阶段验收：创建字段白名单、数字 Scope/Grant ID、时间顺序与 UTC 无时区转换、撤销请求体、`changed` 反馈、已撤销项只读、依赖 fail closed、本地质量门禁和浏览器路由/表单检查均已通过；standalone `/api` 返回 Vite HTML 而非领域 Schema，真实 API 读取和写操作待受控环境验证。
 
 ## 16. 风险、待确认项与决策记录
 
@@ -342,13 +352,13 @@ createMfeApiClient
 | 初始 Secret 关闭后无法找回       | 管理员可能丢失凭证       | 强提示、复制能力、关闭即清除；不接入重新生成 | 已接受 |
 | Apps/Scopes 选项受 100 条限制    | 目标实体可能不在当前选项 | Apps 远程关键词搜索；Scope 超限明确提示      | 开放   |
 | App/Scope 禁用级联语义未公开     | 页面可能错误描述授权效果 | 不做前端级联推断，以服务端结果为准           | 已缓解 |
-| 本地 OpenAPI 后续变化            | 请求或字段漂移           | 每阶段开始前重新读取契约并记录差异           | 开放   |
-| 本地 7201 直连 8000 被 CORS 阻止 | 本地无法完成真实接口联调 | 配置本地 CORS、同源代理或使用实际宿主环境    | 开放   |
+| 本地 OpenAPI 后续变化            | 请求或字段漂移           | 每阶段开始前重新读取契约并记录差异           | 已核对 |
+| standalone `/api` 返回 Vite HTML | 本地无法完成真实接口联调 | 配置真实 API 基地址、同源代理或实际宿主环境  | 开放   |
 | 真实写操作不可由前端回滚         | 测试环境遗留数据         | 仅在明确授权和清理方案下联调                 | 已缓解 |
 
 ### 16.2 待确认项
 
-当前没有阻塞第三阶段方案准备的待确认项。Scope 超过 100 条且无法按 `scope_code` 搜索时是否增加后端搜索接口，仍需依据真实数据量评估；第三阶段必须在现有上限下明确提示候选可能不完整。
+当前没有阻塞第三阶段本地实现的待确认项。Scope 超过 100 条且无法按 `scope_code` 搜索时是否增加后端搜索接口，仍需依据真实数据量评估；第三阶段已在现有上限下明确提示候选可能不完整且不允许自由文本绕过。真实环境联调仍需可用 API 基地址、受控管理员凭证、写操作授权和测试数据清理方案。
 
 ### 16.3 方案决策记录
 
