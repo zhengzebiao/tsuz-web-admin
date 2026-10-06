@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Descriptions,
+  Drawer,
   Flex,
   Form,
   Input,
@@ -18,7 +19,7 @@ import {
 } from "antd";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { EditOutlined, EyeOutlined, ReloadOutlined } from "@ant-design/icons";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageContainer } from "@tsuz/ui";
 import { createMfeApiClient } from "../services/api-client";
 import {
@@ -49,6 +50,23 @@ export default function AdminPermissionsPage() {
   const [page, setPage] = useState(1);
   const [modalState, setModalState] = useState<ModalState>();
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const [tableScrollY, setTableScrollY] = useState(240);
+
+  useEffect(() => {
+    const updateTableScrollY = () => {
+      const card = cardRef.current;
+      const filters = filtersRef.current;
+      if (!card || !filters) return;
+      setTableScrollY(Math.max(240, card.clientHeight - filters.offsetHeight - 110));
+    };
+    updateTableScrollY();
+    const observer = new ResizeObserver(updateTableScrollY);
+    if (cardRef.current) observer.observe(cardRef.current);
+    if (filtersRef.current) observer.observe(filtersRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const permissionsQuery = useQuery({
     queryKey: [...queryKey, page, filters],
@@ -168,9 +186,9 @@ export default function AdminPermissionsPage() {
   };
 
   return (
-    <PageContainer title="权限管理" description="管理系统权限及其启用状态">
-      <Card className="admin-users-card">
-        <Flex className="admin-users-filters" gap={12} wrap="wrap" align="end">
+    <PageContainer className="admin-list-page" title="权限管理" description="管理系统权限及其启用状态">
+      <Card ref={cardRef} className="admin-users-card">
+        <Flex ref={filtersRef} className="admin-users-filters" gap={12} wrap="wrap" align="end">
           <Form.Item label="关键词" className="admin-users-keyword">
             <Input
               value={draftFilters.keyword}
@@ -224,7 +242,7 @@ export default function AdminPermissionsPage() {
           loading={permissionsQuery.isLoading}
           dataSource={rows}
           columns={columns}
-          scroll={{ x: 1200, y: 450 }}
+          scroll={{ x: 1200, y: tableScrollY }}
           onChange={handleTableChange}
           locale={{
             emptyText: permissionsQuery.isError ? (
@@ -313,7 +331,7 @@ function PermissionModal({
   if (type === "detail") {
     const permission = detail;
     return (
-      <Modal open title="权限详情" footer={null} onCancel={onCancel}>
+      <Drawer open title="权限详情" onClose={onCancel}>
         {detailLoading ? <Spin tip="正在加载详情..." /> : null}
         {detailError ? (
           <Space direction="vertical">
@@ -359,7 +377,7 @@ function PermissionModal({
             ]}
           />
         ) : null}
-      </Modal>
+      </Drawer>
     );
   }
 

@@ -60,6 +60,23 @@ export default function AdminServiceGrantsPage() {
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [revokeGrant, setRevokeGrant] = useState<AdminServiceGrant>();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const [tableScrollY, setTableScrollY] = useState(240);
+
+  useEffect(() => {
+    const updateTableScrollY = () => {
+      const card = cardRef.current;
+      const filters = filtersRef.current;
+      if (!card || !filters) return;
+      setTableScrollY(Math.max(240, card.clientHeight - filters.offsetHeight - 110));
+    };
+    updateTableScrollY();
+    const observer = new ResizeObserver(updateTableScrollY);
+    if (cardRef.current) observer.observe(cardRef.current);
+    if (filtersRef.current) observer.observe(filtersRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const grantsQuery = useQuery({
     queryKey: [...grantsQueryKey, page, filters],
@@ -139,6 +156,7 @@ export default function AdminServiceGrantsPage() {
 
   return (
     <PageContainer
+      className="admin-list-page"
       title="服务授权管理"
       description="管理应用调用目标服务资源范围的授权关系"
       actions={
@@ -147,8 +165,8 @@ export default function AdminServiceGrantsPage() {
         </Button>
       }
     >
-      <Card className="admin-users-card">
-        <Flex className="admin-users-filters" gap={12} wrap="wrap" align="end">
+      <Card ref={cardRef} className="admin-users-card">
+        <Flex ref={filtersRef} className="admin-users-filters" gap={12} wrap="wrap" align="end">
           <Form.Item label="调用应用" className="admin-users-keyword">
             <AdminAppSelect
               client={apiClient}
@@ -206,7 +224,7 @@ export default function AdminServiceGrantsPage() {
           loading={grantsQuery.isLoading}
           dataSource={grantItems}
           columns={columns}
-          scroll={{ x: 2100, y: 450 }}
+          scroll={{ x: 2100, y: tableScrollY }}
           onChange={(pagination: TablePaginationConfig) => setPage(pagination.current || 1)}
           locale={{
             emptyText: grantsQuery.isError ? (

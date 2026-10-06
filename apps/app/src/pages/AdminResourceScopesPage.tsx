@@ -51,6 +51,23 @@ export default function AdminResourceScopesPage() {
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [actionScopeId, setActionScopeId] = useState<number>();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const [tableScrollY, setTableScrollY] = useState(240);
+
+  useEffect(() => {
+    const updateTableScrollY = () => {
+      const card = cardRef.current;
+      const filters = filtersRef.current;
+      if (!card || !filters) return;
+      setTableScrollY(Math.max(240, card.clientHeight - filters.offsetHeight - 110));
+    };
+    updateTableScrollY();
+    const observer = new ResizeObserver(updateTableScrollY);
+    if (cardRef.current) observer.observe(cardRef.current);
+    if (filtersRef.current) observer.observe(filtersRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const scopesQuery = useQuery({
     queryKey: [...scopesQueryKey, page, filters],
@@ -140,6 +157,7 @@ export default function AdminResourceScopesPage() {
 
   return (
     <PageContainer
+      className="admin-list-page"
       title="资源范围管理"
       description="管理目标服务对外开放的访问范围"
       actions={
@@ -148,8 +166,8 @@ export default function AdminResourceScopesPage() {
         </Button>
       }
     >
-      <Card className="admin-users-card">
-        <Flex className="admin-users-filters" gap={12} wrap="wrap" align="end">
+      <Card ref={cardRef} className="admin-users-card">
+        <Flex ref={filtersRef} className="admin-users-filters" gap={12} wrap="wrap" align="end">
           <Form.Item label="目标应用" className="admin-users-keyword">
             <AdminAppSelect
               client={apiClient}
@@ -193,7 +211,7 @@ export default function AdminResourceScopesPage() {
           loading={scopesQuery.isLoading}
           dataSource={scopesQuery.data?.items || []}
           columns={columns}
-          scroll={{ x: 1230, y: 450 }}
+          scroll={{ x: 1230, y: tableScrollY }}
           onChange={(pagination: TablePaginationConfig) => setPage(pagination.current || 1)}
           locale={{
             emptyText: scopesQuery.isError ? (

@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Descriptions,
+  Drawer,
   Dropdown,
   Flex,
   Form,
@@ -26,7 +27,7 @@ import {
   ReloadOutlined,
   TeamOutlined
 } from "@ant-design/icons";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageContainer } from "@tsuz/ui";
 import { createMfeApiClient } from "../services/api-client";
 import {
@@ -61,6 +62,24 @@ export default function AdminRolesPage() {
   const [busy, setBusy] = useState(false);
   const [confirmRole, setConfirmRole] = useState<AdminRole>();
   const [confirmAction, setConfirmAction] = useState<"enable" | "disable">();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const [tableScrollY, setTableScrollY] = useState(240);
+
+  useEffect(() => {
+    const updateTableScrollY = () => {
+      const card = cardRef.current;
+      const filters = filtersRef.current;
+      if (!card || !filters) return;
+      setTableScrollY(Math.max(240, card.clientHeight - filters.offsetHeight - 110));
+    };
+    updateTableScrollY();
+    const observer = new ResizeObserver(updateTableScrollY);
+    if (cardRef.current) observer.observe(cardRef.current);
+    if (filtersRef.current) observer.observe(filtersRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const rolesQuery = useQuery({
     queryKey: ["admin-roles", page, filters],
     queryFn: () => listAdminRoles(client, { page, page_size: PAGE_SIZE, ...filters })
@@ -188,6 +207,7 @@ export default function AdminRolesPage() {
   };
   return (
     <PageContainer
+      className="admin-list-page"
       title="角色管理"
       description="管理系统角色、权限和成员"
       actions={
@@ -196,8 +216,8 @@ export default function AdminRolesPage() {
         </Button>
       }
     >
-      <Card className="admin-users-card">
-        <Flex className="admin-users-filters" gap={12} wrap="wrap" align="end">
+      <Card ref={cardRef} className="admin-users-card">
+        <Flex ref={filtersRef} className="admin-users-filters" gap={12} wrap="wrap" align="end">
           <Form.Item label="关键词" className="admin-users-keyword">
             <Input
               value={draft.keyword}
@@ -232,7 +252,7 @@ export default function AdminRolesPage() {
           loading={rolesQuery.isLoading}
           dataSource={rolesQuery.data?.items || []}
           columns={columns}
-          scroll={{ x: 1100, y: 450 }}
+          scroll={{ x: 1100, y: tableScrollY }}
           onChange={(pagination: TablePaginationConfig) => setPage(pagination.current || 1)}
           pagination={{
             current: page,
@@ -306,7 +326,7 @@ function RoleModal({
   }, [form, state]);
   if (!type || type === "detail")
     return (
-      <Modal open={type === "detail"} title="角色详情" footer={null} onCancel={onCancel}>
+      <Drawer open={type === "detail"} title="角色详情" onClose={onCancel}>
         {detailLoading ? (
           <Typography.Text type="secondary">正在加载详情...</Typography.Text>
         ) : (
@@ -335,7 +355,7 @@ function RoleModal({
             }
           />
         )}
-      </Modal>
+      </Drawer>
     );
   const title = { create: "创建角色", edit: "编辑角色", disable: "禁用角色" }[type];
   return (

@@ -37,7 +37,7 @@ export function PageContainer({ title, description, actions, children, className
             {title ? <h1 style={pageTitleStyle}>{title}</h1> : null}
             {description ? <p style={pageDescriptionStyle}>{description}</p> : null}
           </div>
-          {actions ? <div>{actions}</div> : null}
+          {actions ? <div style={pageActionStyle}>{actions}</div> : null}
         </header>
       ) : null}
       {children}
@@ -114,7 +114,7 @@ const logoSubtitleStyle: CSSProperties = {
 
 const pageContainerStyle: CSSProperties = {
   display: "grid",
-  gap: 24
+  gap: 12
 };
 
 const pageHeaderStyle: CSSProperties = {
@@ -133,8 +133,14 @@ const pageTitleStyle: CSSProperties = {
 
 const pageDescriptionStyle: CSSProperties = {
   margin: "8px 0 0",
-  color: "#64748b"
+  color: "#64748b",
+  padding: '0 0 0 16px'
 };
+
+const pageActionStyle: CSSProperties = {
+  padding: '16px 16px 0 0'
+};
+
 
 const stateStyle: CSSProperties = {
   display: "grid",

@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   Descriptions,
+  Drawer,
   Flex,
   Form,
   Input,
@@ -19,7 +20,7 @@ import {
 } from "antd";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { EditOutlined, EyeOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageContainer } from "@tsuz/ui";
 import {
   createAdminApp,
@@ -54,6 +55,24 @@ export default function AdminAppsPage() {
   const [modalState, setModalState] = useState<ModalState>();
   const [secretResult, setSecretResult] = useState<AdminAppCreateResponse>();
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const [tableScrollY, setTableScrollY] = useState(240);
+
+  useEffect(() => {
+    const updateTableScrollY = () => {
+      const card = cardRef.current;
+      const filters = filtersRef.current;
+      if (!card || !filters) return;
+      setTableScrollY(Math.max(240, card.clientHeight - filters.offsetHeight - 110));
+    };
+    updateTableScrollY();
+    const observer = new ResizeObserver(updateTableScrollY);
+    if (cardRef.current) observer.observe(cardRef.current);
+    if (filtersRef.current) observer.observe(filtersRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const selectedApp = modalState && "app" in modalState ? modalState.app : undefined;
 
   const appsQuery = useQuery({
@@ -179,6 +198,7 @@ export default function AdminAppsPage() {
 
   return (
     <PageContainer
+      className="admin-list-page"
       title="应用管理"
       description="管理服务应用及其访问状态"
       actions={
@@ -187,8 +207,8 @@ export default function AdminAppsPage() {
         </Button>
       }
     >
-      <Card className="admin-users-card">
-        <Flex className="admin-users-filters" gap={12} wrap="wrap" align="end">
+      <Card ref={cardRef} className="admin-users-card">
+        <Flex ref={filtersRef} className="admin-users-filters" gap={12} wrap="wrap" align="end">
           <Form.Item label="关键词" className="admin-users-keyword">
             <Input
               aria-label="关键词"
@@ -233,7 +253,7 @@ export default function AdminAppsPage() {
           loading={appsQuery.isLoading}
           dataSource={appsQuery.data?.items || []}
           columns={columns}
-          scroll={{ x: 1550, y: 450 }}
+          scroll={{ x: 1550,y: tableScrollY  }}
           onChange={(pagination: TablePaginationConfig) => setPage(pagination.current || 1)}
           locale={{
             emptyText: appsQuery.isError ? (
@@ -314,7 +334,7 @@ function AppModal({
   if (!state) return null;
   if (state.type === "detail") {
     return (
-      <Modal open title="应用详情" footer={null} onCancel={onCancel}>
+      <Drawer open title="应用详情" onClose={onCancel}>
         {detailLoading ? (
           <Space>
             <Spin />
@@ -328,7 +348,7 @@ function AppModal({
           </Space>
         ) : null}
         {detail ? <AppDescriptions app={detail} /> : null}
-      </Modal>
+      </Drawer>
     );
   }
 

@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Descriptions,
+  Drawer,
   Dropdown,
   Flex,
   Form,
@@ -26,7 +27,7 @@ import {
   KeyOutlined,
   LogoutOutlined
 } from "@ant-design/icons";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageContainer } from "@tsuz/ui";
 import { createMfeApiClient } from "../services/api-client";
 import UserRolesModal from "./admin-users/UserRolesModal";
@@ -70,6 +71,23 @@ export default function AdminUsersPage() {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [actionUser, setActionUser] = useState<AdminUser>();
   const [pendingAction, setPendingAction] = useState<"enable" | "recover" | "force-logout">();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const [tableScrollY, setTableScrollY] = useState(240);
+
+  useEffect(() => {
+    const updateTableScrollY = () => {
+      const card = cardRef.current;
+      const filters = filtersRef.current;
+      if (!card || !filters) return;
+      setTableScrollY(Math.max(240, card.clientHeight - filters.offsetHeight - 110));
+    };
+    updateTableScrollY();
+    const observer = new ResizeObserver(updateTableScrollY);
+    if (cardRef.current) observer.observe(cardRef.current);
+    if (filtersRef.current) observer.observe(filtersRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const usersQuery = useQuery({
     queryKey: [...queryKey, page, filters],
@@ -243,6 +261,7 @@ export default function AdminUsersPage() {
 
   return (
     <PageContainer
+      className="admin-users-page"
       title="用户管理"
       description="管理系统用户和账户状态"
       actions={
@@ -251,8 +270,8 @@ export default function AdminUsersPage() {
         </Button>
       }
     >
-      <Card className="admin-users-card">
-        <Flex className="admin-users-filters" gap={12} wrap="wrap" align="end">
+      <Card ref={cardRef} className="admin-users-card">
+        <Flex ref={filtersRef} className="admin-users-filters" gap={12} wrap="wrap" align="end">
           <Form.Item label="关键词" className="admin-users-keyword">
             <Input
               value={draftFilters.keyword}
@@ -314,7 +333,7 @@ export default function AdminUsersPage() {
           loading={usersQuery.isLoading}
           dataSource={rows}
           columns={columns}
-          scroll={{ x: 1000, y: 450 }}
+          scroll={{ x: 1000, y: tableScrollY }}
           onChange={handleTableChange}
           locale={{
             emptyText: usersQuery.isError ? (
@@ -419,7 +438,7 @@ function UserModal({
   }, [state, type]);
   if (!type || type === "detail") {
     return (
-      <Modal open={type === "detail"} title="用户详情" footer={null} onCancel={onCancel} confirmLoading={detailLoading}>
+      <Drawer open={type === "detail"} title="用户详情" onClose={onCancel}>
         {detailLoading ? <Typography.Paragraph type="secondary">正在加载详情...</Typography.Paragraph> : null}
         <Descriptions
           bordered
@@ -452,7 +471,7 @@ function UserModal({
               : []
           }
         />
-      </Modal>
+      </Drawer>
     );
   }
   const isCreate = type === "create";
