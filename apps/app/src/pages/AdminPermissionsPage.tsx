@@ -52,14 +52,14 @@ export default function AdminPermissionsPage() {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
-  const [tableScrollY, setTableScrollY] = useState(240);
+  const [tableScrollY, setTableScrollY] = useState(200);
 
   useEffect(() => {
     const updateTableScrollY = () => {
       const card = cardRef.current;
       const filters = filtersRef.current;
       if (!card || !filters) return;
-      setTableScrollY(Math.max(240, card.clientHeight - filters.offsetHeight - 110));
+      setTableScrollY(Math.max(200, card.clientHeight - filters.offsetHeight - 160));
     };
     updateTableScrollY();
     const observer = new ResizeObserver(updateTableScrollY);

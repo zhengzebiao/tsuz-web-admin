@@ -69,7 +69,7 @@ export default function AdminServiceGrantsPage() {
       const card = cardRef.current;
       const filters = filtersRef.current;
       if (!card || !filters) return;
-      setTableScrollY(Math.max(240, card.clientHeight - filters.offsetHeight - 110));
+      setTableScrollY(Math.max(240, card.clientHeight - filters.offsetHeight - 160));
     };
     updateTableScrollY();
     const observer = new ResizeObserver(updateTableScrollY);

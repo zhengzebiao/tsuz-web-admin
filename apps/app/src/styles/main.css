@@ -87,7 +87,7 @@ body {
 }
 
 .admin-users-card > .ant-card-body {
-  min-height: 0;
+  /* min-height: 0; */
   display: flex;
   flex: 1;
   flex-direction: column;
